@@ -55,8 +55,9 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.txtRaSet = new System.Windows.Forms.TextBox();
-            this.btnRaSet = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.timerJoystick = new System.Windows.Forms.Timer(this.components);
+            this.joystickLabel = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -340,22 +341,31 @@
             this.timer2.Interval = 50;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // txtRaSet
+            // button1
             // 
-            this.txtRaSet.Location = new System.Drawing.Point(9, 380);
-            this.txtRaSet.Name = "txtRaSet";
-            this.txtRaSet.Size = new System.Drawing.Size(68, 21);
-            this.txtRaSet.TabIndex = 15;
+            this.button1.BackColor = System.Drawing.Color.DimGray;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.Location = new System.Drawing.Point(9, 73);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(72, 22);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "Joystick";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // btnRaSet
+            // timerJoystick
             // 
-            this.btnRaSet.Location = new System.Drawing.Point(83, 378);
-            this.btnRaSet.Name = "btnRaSet";
-            this.btnRaSet.Size = new System.Drawing.Size(38, 23);
-            this.btnRaSet.TabIndex = 16;
-            this.btnRaSet.Text = "Set";
-            this.btnRaSet.UseVisualStyleBackColor = true;
-            this.btnRaSet.Click += new System.EventHandler(this.btnRaSet_Click);
+            this.timerJoystick.Interval = 500;
+            this.timerJoystick.Tick += new System.EventHandler(this.timerJoystick_Tick);
+            // 
+            // joystickLabel
+            // 
+            this.joystickLabel.AutoSize = true;
+            this.joystickLabel.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.joystickLabel.Location = new System.Drawing.Point(87, 78);
+            this.joystickLabel.Name = "joystickLabel";
+            this.joystickLabel.Size = new System.Drawing.Size(0, 12);
+            this.joystickLabel.TabIndex = 16;
             // 
             // Form1
             // 
@@ -363,8 +373,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(407, 423);
-            this.Controls.Add(this.btnRaSet);
-            this.Controls.Add(this.txtRaSet);
+            this.Controls.Add(this.joystickLabel);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.decZero);
             this.Controls.Add(this.raOne);
@@ -416,8 +426,9 @@
         private System.Windows.Forms.TextBox txtRAGuideSpeed;
         private System.Windows.Forms.Label labelGuiding;
         private System.Windows.Forms.Timer timer2;
-        private System.Windows.Forms.TextBox txtRaSet;
-        private System.Windows.Forms.Button btnRaSet;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Timer timerJoystick;
+        private System.Windows.Forms.Label joystickLabel;
     }
 }
 

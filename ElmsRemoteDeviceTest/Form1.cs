@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using SharpDX.DirectInput;
 
 namespace ASCOM.ElmsRemoteDevice
 {
@@ -161,8 +162,8 @@ namespace ASCOM.ElmsRemoteDevice
             txtPulseTime.Enabled = IsConnected;
             raLabel.Text = "RA: " + raSpeed;
             decLabel.Text = "Dec: " + decSpeed;
-            raTrack.Value = (int)((raSpeed + 15) * 100);
-            decTrack.Value = (int)((decSpeed + 15) * 100);
+            raTrack.Value = Math.Max(Math.Min((int)((raSpeed + 15) * 100), raTrack.Maximum), raTrack.Minimum);
+            decTrack.Value = Math.Max(Math.Min((int)((decSpeed + 15) * 100), decTrack.Maximum), decTrack.Minimum);
             raTrackingCheck.Checked = tracking;
             txtRAGuideSpeed.Text = raGuideSpeed.ToString();
             txtDecGuideSpeed.Text = decGuideSpeed.ToString();
@@ -301,17 +302,94 @@ namespace ASCOM.ElmsRemoteDevice
             
         }
 
-        private void btnRaSet_Click(object sender, EventArgs e)
+        Joystick joystick;
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            double ra;
-            if (double.TryParse(txtRaSet.Text, out ra))
+            if (timerJoystick.Enabled)
             {
-                raSpeed = ra;
-                updateLabel();
+                timerJoystick.Enabled = false;
+                joystick.Dispose();
+                joystick = null;
+                button1.Text = "Joystick";
+                joystickLabel.Text = "";
+                return;
+
+            } 
+            var directInput = new DirectInput();
+            // Find a Joystick Guid
+            var joystickGuid = Guid.Empty;
+
+            foreach (var deviceInstance in directInput.GetDevices(DeviceType.Gamepad, DeviceEnumerationFlags.AllDevices))
+                joystickGuid = deviceInstance.InstanceGuid;
+
+            // If Gamepad not found, look for a Joystick
+            if (joystickGuid == Guid.Empty)
+                foreach (var deviceInstance in directInput.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AllDevices))
+                    joystickGuid = deviceInstance.InstanceGuid;
+
+            // If Joystick not found, throws an error
+            if (joystickGuid == Guid.Empty)
+            {
+                MessageBox.Show("No Joystick/Gamepad found.");
+                return;
+            }
+
+            joystick = new Joystick(directInput, joystickGuid);
+            timerJoystick.Enabled = true;
+            button1.Text = "Stop Joystick";
+            
+        }
+
+        double joystickSpeed = 4;
+        double joystickAccler = 4;
+        double max = 32767.5;
+        double min = 2767;
+
+        private void timerJoystick_Tick(object sender, EventArgs e)
+        {
+            var joystickState = new JoystickState();
+            joystick.Acquire();
+            joystick.GetCurrentState(ref joystickState);
+            double jx = joystickState.X - max;
+            double accler = joystickState.Buttons[4] ? joystickAccler : 1;
+            if (jx > min)
+            {
+                jx = accler * joystickSpeed * (jx - min) / (max - min);
+            }
+            else if (jx < -min)
+            {
+                jx = accler * joystickSpeed * (jx + min) / (max - min);
             }
             else
             {
-                MessageBox.Show("数字格式错误");
+                jx = 0;
+            }
+            double jy = joystickState.Y - max;
+            if (jy > min)
+            {
+                jy = accler * joystickSpeed * (jy - min) / (max - min);
+            }
+            else if (jy < -min)
+            {
+                jy = accler * joystickSpeed * (jy + min) / (max - min);
+            }
+            else
+            {
+                jy = 0;
+            }
+            joystickLabel.Text = "X: " + jx + ", Y: " + jy;// +", " + string.Join("|", joystickState.Buttons);
+            if (this.IsConnected)
+            {
+                if (Math.Abs(raSpeed - jx) > 0.01)
+                {
+                    raSpeed = jx;
+                }
+                if (Math.Abs(decSpeed - jy) > 0.01)
+                {
+                    decSpeed = jy;
+                }
+                updateLabel();
             }
         }
 
