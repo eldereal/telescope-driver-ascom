@@ -39,10 +39,6 @@ namespace ASCOM.ElmsRemoteDevice
             else
             {
                 driver = new ASCOM.DriverAccess.Telescope(Properties.Settings.Default.DriverId);
-                if (driver is ASCOM.ElmsRemoteTelescopeUdp.Telescope)
-                {
-                    MessageBox.Show("is ElmsRemoteTelescopeUdp");
-                }
                 driver.Connected = true;
             }
             SetUIState();
@@ -64,7 +60,7 @@ namespace ASCOM.ElmsRemoteDevice
             }
         }
 
-        double raSpeed
+        public double raSpeed
         {
             get
             {
@@ -96,7 +92,7 @@ namespace ASCOM.ElmsRemoteDevice
             }
         }
 
-        double decSpeed
+        public double decSpeed
         {
             get
             {
@@ -144,7 +140,7 @@ namespace ASCOM.ElmsRemoteDevice
             }
         }
 
-        void updateLabel()
+        public void updateLabel()
         {
             raZero.Enabled = IsConnected;
             raOne.Enabled = IsConnected;
@@ -160,6 +156,7 @@ namespace ASCOM.ElmsRemoteDevice
             txtRAGuideSpeed.Enabled = IsConnected;
             txtDecGuideSpeed.Enabled = IsConnected;
             txtPulseTime.Enabled = IsConnected;
+            buttonGoto.Enabled = IsConnected;
             raLabel.Text = "RA: " + raSpeed;
             decLabel.Text = "Dec: " + decSpeed;
             raTrack.Value = Math.Max(Math.Min((int)((raSpeed + 15) * 100), raTrack.Maximum), raTrack.Minimum);
@@ -391,6 +388,12 @@ namespace ASCOM.ElmsRemoteDevice
                 }
                 updateLabel();
             }
+        }
+
+        private void buttonGoto_Click(object sender, EventArgs e)
+        {
+            FormGoto g = new FormGoto(this);
+            g.Show(this);
         }
 
         

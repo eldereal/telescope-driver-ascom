@@ -58,6 +58,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.timerJoystick = new System.Windows.Forms.Timer(this.components);
             this.joystickLabel = new System.Windows.Forms.Label();
+            this.buttonGoto = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -367,12 +368,25 @@
             this.joystickLabel.Size = new System.Drawing.Size(0, 12);
             this.joystickLabel.TabIndex = 16;
             // 
+            // buttonGoto
+            // 
+            this.buttonGoto.BackColor = System.Drawing.Color.DimGray;
+            this.buttonGoto.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonGoto.Location = new System.Drawing.Point(87, 73);
+            this.buttonGoto.Name = "buttonGoto";
+            this.buttonGoto.Size = new System.Drawing.Size(72, 22);
+            this.buttonGoto.TabIndex = 17;
+            this.buttonGoto.Text = "Goto";
+            this.buttonGoto.UseVisualStyleBackColor = false;
+            this.buttonGoto.Click += new System.EventHandler(this.buttonGoto_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(407, 423);
+            this.Controls.Add(this.buttonGoto);
             this.Controls.Add(this.joystickLabel);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.panel2);
@@ -386,6 +400,7 @@
             this.Controls.Add(this.labelDriverId);
             this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.buttonChoose);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Name = "Form1";
             this.Text = "Telescope Controller";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -429,6 +444,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Timer timerJoystick;
         private System.Windows.Forms.Label joystickLabel;
+        private System.Windows.Forms.Button buttonGoto;
     }
 }
 
