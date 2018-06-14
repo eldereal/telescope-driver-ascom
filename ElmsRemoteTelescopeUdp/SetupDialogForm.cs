@@ -24,7 +24,9 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             Telescope.host = tbHost.Text;
             Telescope.port = int.Parse(tbPort.Text);
+            Telescope.autoDetect = checkBoxAuto.Checked;
             Telescope.tl.Enabled = chkTrace.Checked;
+            
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -53,7 +55,16 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             tbHost.Text = Telescope.host;
             tbPort.Text = Telescope.port.ToString();
+            checkBoxAuto.Checked = Telescope.autoDetect;
             chkTrace.Checked = Telescope.tl.Enabled;
+            tbHost.Enabled = !Telescope.autoDetect;
+            tbPort.Enabled = !Telescope.autoDetect;
+        }
+
+        private void checkBoxAuto_CheckedChanged(object sender, EventArgs e)
+        {
+            tbHost.Enabled = !checkBoxAuto.Checked;
+            tbPort.Enabled = !checkBoxAuto.Checked;
         }
     }
 }

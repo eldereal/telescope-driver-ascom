@@ -36,6 +36,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             this.tbHost = new System.Windows.Forms.TextBox();
             this.tbPort = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.checkBoxAuto = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.SuspendLayout();
             // 
@@ -85,7 +86,6 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             this.label2.Size = new System.Drawing.Size(29, 12);
             this.label2.TabIndex = 5;
             this.label2.Text = "Host";
-            
             // 
             // chkTrace
             // 
@@ -101,30 +101,42 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             // 
             this.tbHost.Location = new System.Drawing.Point(48, 12);
             this.tbHost.Name = "tbHost";
-            this.tbHost.Size = new System.Drawing.Size(134, 21);
+            this.tbHost.Size = new System.Drawing.Size(99, 21);
             this.tbHost.TabIndex = 7;
             // 
             // tbPort
             // 
-            this.tbPort.Location = new System.Drawing.Point(205, 12);
+            this.tbPort.Location = new System.Drawing.Point(170, 12);
             this.tbPort.Name = "tbPort";
-            this.tbPort.Size = new System.Drawing.Size(70, 21);
+            this.tbPort.Size = new System.Drawing.Size(51, 21);
             this.tbPort.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(188, 15);
+            this.label3.Location = new System.Drawing.Point(153, 15);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(11, 12);
             this.label3.TabIndex = 9;
             this.label3.Text = ":";
+            // 
+            // checkBoxAuto
+            // 
+            this.checkBoxAuto.AutoSize = true;
+            this.checkBoxAuto.Location = new System.Drawing.Point(227, 15);
+            this.checkBoxAuto.Name = "checkBoxAuto";
+            this.checkBoxAuto.Size = new System.Drawing.Size(48, 16);
+            this.checkBoxAuto.TabIndex = 10;
+            this.checkBoxAuto.Text = "Auto";
+            this.checkBoxAuto.UseVisualStyleBackColor = true;
+            this.checkBoxAuto.CheckedChanged += new System.EventHandler(this.checkBoxAuto_CheckedChanged);
             // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(350, 82);
+            this.Controls.Add(this.checkBoxAuto);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tbPort);
             this.Controls.Add(this.tbHost);
@@ -156,5 +168,6 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         private System.Windows.Forms.TextBox tbHost;
         private System.Windows.Forms.TextBox tbPort;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox checkBoxAuto;
     }
 }

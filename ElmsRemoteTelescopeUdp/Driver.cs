@@ -42,6 +42,7 @@ using System.Collections;
 using System.Threading;
 using System.Net.Sockets;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace ASCOM.ElmsRemoteTelescopeUdp
 {
@@ -78,12 +79,15 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         internal static string hostDefault = "";
         internal static string portProfileName = "Port";
         internal static string portDefault = "9333";
+        internal static string autoDetectProfileName = "AutoDetect";
+        internal static string autoDetectDefault = "true";
 
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
 
         internal static string host;
         internal static int port;
+        internal static bool autoDetect;
 
         /// <summary>
         /// Private variable to hold an ASCOM Utilities object
@@ -101,6 +105,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         internal static TraceLogger tl;
 
         EventWaitHandle nextCommand;
+        EventWaitHandle autoDetectEvent;
         UdpClient client;
 
         private bool tracking;
@@ -109,6 +114,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         private int decSpeedInt;
         private int raGuideSpeedInt;
         private int decGuideSpeedInt;
+
+        Regex ipPortPattern = new Regex("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElmsRemoteTelescopeUdp"/> class.
@@ -125,14 +132,53 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
             //TODO: Implement your additional construction here
             nextCommand = new EventWaitHandle(false, EventResetMode.AutoReset);
+            autoDetectEvent = new EventWaitHandle(false, EventResetMode.AutoReset);
             tl.LogMessage("Telescope", "Completed initialisation");
         }
 
         void connect()
         {
+            if (autoDetect)
+            {
+                UdpClient autoDetectClient = new UdpClient();
+                autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, 9334));
+                autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
+                if (!autoDetectEvent.WaitOne(10000))
+                {
+                    throw new ASCOM.DriverException("Auto-find telescope timeout");
+                }
+            }
             client = new UdpClient(Helpers.FindNextAvailableUDPPort(19333));
             client.BeginReceive(new AsyncCallback(PackReceived), client);
             sendCommandAndWaitAck(Commands.CommandPing());
+        }
+
+        void AutoConnectReceived(IAsyncResult result)
+        {
+            try
+            {
+                UdpClient client = (UdpClient)result.AsyncState;
+                IPEndPoint from = null;
+                byte[] res = client.EndReceive(result, ref from);
+                string received = Encoding.UTF8.GetString(res);
+                Match m = ipPortPattern.Match(received);
+                if (m.Success)
+                {
+                    host = m.Groups[1].Value;
+                    port = int.Parse(m.Groups[2].Value);
+                    autoDetectEvent.Set();
+                    client.Close();
+                }
+                client.BeginReceive(new AsyncCallback(PackReceived), client);
+            }
+            catch (ObjectDisposedException e)
+            {
+                Console.Error.WriteLine(e);
+            }
+            catch (SocketException e)
+            {
+                Console.Error.WriteLine(e);
+            }
         }
 
         void PackReceived(IAsyncResult result)
@@ -1127,6 +1173,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 tl.Enabled = Convert.ToBoolean(driverProfile.GetValue(driverID, traceStateProfileName, string.Empty, traceStateDefault));
                 host = driverProfile.GetValue(driverID, hostProfileName, string.Empty, hostDefault);
                 port = int.Parse(driverProfile.GetValue(driverID, portProfileName, string.Empty, portDefault));
+                autoDetect = !("false".Equals(driverProfile.GetValue(driverID, autoDetectProfileName, string.Empty, autoDetectDefault)));
             }
         }
 
@@ -1141,6 +1188,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 driverProfile.WriteValue(driverID, traceStateProfileName, tl.Enabled.ToString());
                 driverProfile.WriteValue(driverID, hostProfileName, host);
                 driverProfile.WriteValue(driverID, portProfileName, port.ToString());
+                driverProfile.WriteValue(driverID, autoDetectProfileName, autoDetect.ToString());
             }
         }
 
