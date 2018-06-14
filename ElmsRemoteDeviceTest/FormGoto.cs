@@ -113,15 +113,19 @@ namespace ASCOM.ElmsRemoteDevice
                 canGoto = false;
                 if (double.TryParse(comboBoxRaSpeed.Text, out raSpeedScale))
                 {
-                    raTime = (raGoto - raSync) / RaUnitSpeed / raSpeedScale;
+                    raTime = -(raGoto - raSync) / RaUnitSpeed / Math.Abs(raSpeedScale);
                     if (raTime < 0)
                     {
-                        raSpeed = -raSpeedScale;
+                        raSpeed = -Math.Abs(raSpeedScale);
                         raTime = -raTime;
                     }
                     else
                     {
-                        raSpeed = raSpeedScale;
+                        raSpeed = Math.Abs(raSpeedScale);
+                    }
+                    if (raSpeedScale < 0)
+                    {
+                        raSpeed = -raSpeed;
                     }
                     labelRATime.Text = "RA Time: " + raTime.ToString("0");
                     canGoto = true;
@@ -134,15 +138,19 @@ namespace ASCOM.ElmsRemoteDevice
 
                 if (double.TryParse(comboBoxDecSpeed.Text, out decSpeedScale))
                 {
-                    decTime = Math.Abs((decGoto - decSync) / DecUnitSpeed / decSpeedScale);
+                    decTime = (decGoto - decSync) / DecUnitSpeed / Math.Abs(decSpeedScale);
                     if (decTime < 0)
                     {
-                        decSpeed = -decSpeedScale;
+                        decSpeed = -Math.Abs(decSpeedScale);
                         decTime = -decTime;
                     }
                     else
                     {
-                        decSpeed = decSpeedScale;
+                        decSpeed = Math.Abs(decSpeedScale);
+                    }
+                    if (decSpeedScale < 0)
+                    {
+                        decSpeed = -decSpeed;
                     }
                     labelDecTime.Text = "Dec Time: " + decTime.ToString("0");
                 }
@@ -269,6 +277,14 @@ namespace ASCOM.ElmsRemoteDevice
             {
                 stop();
             }
+        }
+
+        private void buttonSwitch_Click(object sender, EventArgs e)
+        {
+            string temp = textBoxSync.Text;
+            textBoxSync.Text = textBoxGoto.Text;
+            textBoxGoto.Text = temp;
+
         }
     }
 }

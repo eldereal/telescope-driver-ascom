@@ -44,6 +44,7 @@
             this.labelRATime = new System.Windows.Forms.Label();
             this.labelDecTime = new System.Windows.Forms.Label();
             this.timer = new System.Windows.Forms.Timer(this.components);
+            this.buttonSwitch = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -60,7 +61,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.label2.Location = new System.Drawing.Point(234, 13);
+            this.label2.Location = new System.Drawing.Point(249, 13);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(89, 12);
             this.label2.TabIndex = 1;
@@ -84,7 +85,7 @@
             // 
             this.textBoxGoto.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textBoxGoto.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBoxGoto.Location = new System.Drawing.Point(236, 38);
+            this.textBoxGoto.Location = new System.Drawing.Point(251, 38);
             this.textBoxGoto.Multiline = true;
             this.textBoxGoto.Name = "textBoxGoto";
             this.textBoxGoto.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -131,7 +132,7 @@
             // 
             this.labelGoto.AutoSize = true;
             this.labelGoto.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.labelGoto.Location = new System.Drawing.Point(234, 237);
+            this.labelGoto.Location = new System.Drawing.Point(249, 237);
             this.labelGoto.Name = "labelGoto";
             this.labelGoto.Size = new System.Drawing.Size(0, 12);
             this.labelGoto.TabIndex = 7;
@@ -215,12 +216,23 @@
             this.timer.Interval = 1000;
             this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
+            // buttonSwitch
+            // 
+            this.buttonSwitch.Location = new System.Drawing.Point(213, 122);
+            this.buttonSwitch.Name = "buttonSwitch";
+            this.buttonSwitch.Size = new System.Drawing.Size(33, 23);
+            this.buttonSwitch.TabIndex = 14;
+            this.buttonSwitch.Text = "<->";
+            this.buttonSwitch.UseVisualStyleBackColor = true;
+            this.buttonSwitch.Click += new System.EventHandler(this.buttonSwitch_Click);
+            // 
             // FormGoto
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.ClientSize = new System.Drawing.Size(451, 338);
+            this.Controls.Add(this.buttonSwitch);
             this.Controls.Add(this.labelDecTime);
             this.Controls.Add(this.labelRATime);
             this.Controls.Add(this.comboBoxDecSpeed);
@@ -262,5 +274,6 @@
         private System.Windows.Forms.Label labelRATime;
         private System.Windows.Forms.Label labelDecTime;
         private System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Button buttonSwitch;
     }
 }
