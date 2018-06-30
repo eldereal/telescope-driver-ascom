@@ -141,10 +141,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             if (autoDetect)
             {
                 UdpClient autoDetectClient = new UdpClient();
-                autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, 9334));
+                int port = Helpers.FindNextAvailableUDPPort(9334);
+                autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
                 autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
                 if (!autoDetectEvent.WaitOne(10000))
-                {
+                {   
                     throw new ASCOM.DriverException("Auto-find telescope timeout");
                 }
             }
@@ -153,23 +154,33 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             sendCommandAndWaitAck(Commands.CommandPing());
         }
 
+        int SIDEREAL_DAY_MILLIS = 86164092;
+        int DAY_MILLIS = 86400000;
+
         void AutoConnectReceived(IAsyncResult result)
         {
+            UdpClient autoDetectClient = (UdpClient)result.AsyncState;
             try
-            {
-                UdpClient client = (UdpClient)result.AsyncState;
+            {                
                 IPEndPoint from = null;
-                byte[] res = client.EndReceive(result, ref from);
-                string received = Encoding.UTF8.GetString(res);
-                Match m = ipPortPattern.Match(received);
-                if (m.Success)
+                byte[] res = autoDetectClient.EndReceive(result, ref from);
+                Broadcast pack = Broadcast.Parse(res);
+                host = pack.IP.ToString();
+                port = pack.Port;
+                int raMillis = pack.RightAscensionMillis;
+                while (raMillis < 0)
                 {
-                    host = m.Groups[1].Value;
-                    port = int.Parse(m.Groups[2].Value);
-                    autoDetectEvent.Set();
-                    client.Close();
+                    raMillis += DAY_MILLIS;
                 }
-                client.BeginReceive(new AsyncCallback(PackReceived), client);
+                while (raMillis >= DAY_MILLIS)
+                {
+                    raMillis -= DAY_MILLIS;
+                }
+                int decMillis = pack.DeclinationMillis;
+                this.RightAscension = raMillis / (3600 * 1000.0);
+                this.Declination = decMillis * 360.0 / (double)DAY_MILLIS;
+                tl.LogMessage("Telescope", "RightAscension: " + this.RightAscension + ", Declination: " + this.Declination);
+                autoDetectEvent.Set();
             }
             catch (ObjectDisposedException e)
             {
@@ -178,6 +189,10 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             catch (SocketException e)
             {
                 Console.Error.WriteLine(e);
+            }
+            finally
+            {
+                autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
             }
         }
 
@@ -631,8 +646,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             get
             {
-                tl.LogMessage("CanSync", "Get - " + false.ToString());
-                return false;
+                return true;
             }
         }
 
@@ -656,12 +670,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         public double Declination
         {
-            get
-            {
-                double declination = 0.0;
-                tl.LogMessage("Declination", "Get - " + utilities.DegreesToDMS(declination, ":", ":"));
-                return declination;
-            }
+            get;
+            private set;
         }
 
         public double DeclinationRate
@@ -782,12 +792,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         public double RightAscension
         {
-            get
-            {
-                double rightAscension = 0.0;
-                tl.LogMessage("RightAscension", "Get - " + utilities.HoursToHMS(rightAscension));
-                return rightAscension;
-            }
+            get; private set;
         }
 
         public double RightAscensionRate
@@ -958,42 +963,27 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         public void SyncToCoordinates(double RightAscension, double Declination)
         {
-            tl.LogMessage("SyncToCoordinates", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SyncToCoordinates");
+            tl.LogMessage("Sync", "RA: " + RightAscension + ", Dec");
+            int raMillis = (int)(RightAscension * (3600.0 * 1000.0));
+            int decMillis = (int)(Declination * (double) DAY_MILLIS / 360.0);
+            sendCommand(Commands.CommandSyncToCoordinates(raMillis, decMillis));
         }
 
         public void SyncToTarget()
         {
-            tl.LogMessage("SyncToTarget", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SyncToTarget");
+            this.SyncToCoordinates(TargetRightAscension, TargetDeclination);
         }
 
         public double TargetDeclination
         {
-            get
-            {
-                tl.LogMessage("TargetDeclination Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TargetDeclination", false);
-            }
-            set
-            {
-                tl.LogMessage("TargetDeclination Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TargetDeclination", true);
-            }
+            get;
+            set;
         }
 
         public double TargetRightAscension
         {
-            get
-            {
-                tl.LogMessage("TargetRightAscension Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TargetRightAscension", false);
-            }
-            set
-            {
-                tl.LogMessage("TargetRightAscension Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TargetRightAscension", true);
-            }
+            get;
+            set;
         }
 
         public bool Tracking

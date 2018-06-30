@@ -140,5 +140,14 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             return r;
         }
 
+        public static byte[] CommandSyncToCoordinates(int targetRaMillis, int targetDecMillis)
+        {
+            byte[] r = new byte[9];
+            r[0] = 7;
+            Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetRaMillis)), 0, r, 1, 4);
+            Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetDecMillis)), 0, r, 5, 4);
+            return r;
+        }
+
     }
 }
