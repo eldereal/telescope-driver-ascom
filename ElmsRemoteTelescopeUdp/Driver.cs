@@ -179,7 +179,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 int decMillis = pack.DeclinationMillis;
                 this.RightAscension = raMillis / (3600 * 1000.0);
                 this.Declination = decMillis * 360.0 / (double)DAY_MILLIS;
-                tl.LogMessage("Telescope", "RightAscension: " + this.RightAscension + ", Declination: " + this.Declination);
+                this.Slewing = pack.Slewing;
                 autoDetectEvent.Set();
             }
             catch (ObjectDisposedException e)
@@ -440,16 +440,15 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         #region ITelescope Implementation
         public void AbortSlew()
         {
-            tl.LogMessage("AbortSlew", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("AbortSlew");
+            tl.LogMessage("AbortSlew", "Slewing: " + Slewing);
+            sendCommand(Commands.CommandAbortSlew());
         }
 
         public AlignmentModes AlignmentMode
         {
             get
             {
-                tl.LogMessage("AlignmentMode Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("AlignmentMode", false);
+                return AlignmentModes.algGermanPolar;
             }
         }
 
@@ -925,35 +924,30 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         public void SlewToCoordinates(double RightAscension, double Declination)
         {
-            tl.LogMessage("SlewToCoordinates", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToCoordinates");
+            tl.LogMessage("Slew", "Sync slewing");
+            SlewToCoordinatesAsync(RightAscension, Declination);
+            tl.LogMessage("Slew", "Sync slew finished");
         }
 
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
-            tl.LogMessage("SlewToCoordinatesAsync", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToCoordinatesAsync");
+            tl.LogMessage("Slew", "RA: " + RightAscension + ", Dec: " + Declination);
+            int raMillis = (int)(RightAscension * (3600.0 * 1000.0));
+            int decMillis = (int)(Declination * (double)DAY_MILLIS / 360.0);
+            sendCommand(Commands.CommandSlewToCoordinates(raMillis, decMillis));
         }
 
         public void SlewToTarget()
         {
-            tl.LogMessage("SlewToTarget", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToTarget");
+            this.SlewToCoordinates(TargetRightAscension, TargetDeclination);
         }
 
         public void SlewToTargetAsync()
         {
-            tl.LogMessage("SlewToTargetAsync", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToTargetAsync");
+            this.SlewToCoordinatesAsync(TargetRightAscension, TargetDeclination);
         }
 
-        public bool Slewing
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool Slewing { get; set; }
 
         public void SyncToAltAz(double Azimuth, double Altitude)
         {
@@ -963,7 +957,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         public void SyncToCoordinates(double RightAscension, double Declination)
         {
-            tl.LogMessage("Sync", "RA: " + RightAscension + ", Dec");
+            tl.LogMessage("Sync", "RA: " + RightAscension + ", Dec: " + Declination);
             int raMillis = (int)(RightAscension * (3600.0 * 1000.0));
             int decMillis = (int)(Declination * (double) DAY_MILLIS / 360.0);
             sendCommand(Commands.CommandSyncToCoordinates(raMillis, decMillis));

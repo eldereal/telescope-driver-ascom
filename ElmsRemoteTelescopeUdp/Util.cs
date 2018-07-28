@@ -64,23 +64,37 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         }
     }
 
+    enum CommandByte : byte
+    {
+        Ping = 0,
+        SetTracking = 1,
+        SetRaSpeed = 2,
+        SetDecSpeed = 3,
+        PulseGuide = 4,
+        SetRaGuideSpeed = 5,
+        SetDecGuideSpeed = 6,
+        Sync = 7,
+        Slew = 8,
+        AbortSlew = 9,
+    }
+
     class Commands
     {
         public static byte[] CommandPing()
         {
-            return new byte[] { 0 };
+            return new byte[] { (byte) CommandByte.Ping };
         }
 
         public static byte[] CommandSetTracking(bool tracking)
         {
-            return new byte[] { 1, tracking ? (byte)1 : (byte)0 };
+            return new byte[] { (byte) CommandByte.SetTracking, tracking ? (byte)1 : (byte)0 };
         }
 
         public static byte[] CommandSetRaSpeed(double raSpeed)
         {
             int speedNum = (int)(raSpeed * 1000);
             byte[] r = new byte[5];
-            r[0] = 2;
+            r[0] = (byte)CommandByte.SetRaSpeed;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(speedNum)), 0, r, 1, 4);
             return r;
         }
@@ -89,7 +103,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             int speedNum = (int)(raGuideSpeed * 1000);
             byte[] r = new byte[5];
-            r[0] = 5;
+            r[0] = (byte)CommandByte.SetRaGuideSpeed;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(speedNum)), 0, r, 1, 4);
             return r;
         }
@@ -98,7 +112,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             int speedNum = (int)(decSpeed * 1000);
             byte[] r = new byte[5];
-            r[0] = 3;
+            r[0] = (byte) CommandByte.SetDecSpeed;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(speedNum)), 0, r, 1, 4);
             return r;
         }
@@ -107,7 +121,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         {
             int speedNum = (int)(decGuideSpeed * 1000);
             byte[] r = new byte[5];
-            r[0] = 6;
+            r[0] = (byte)CommandByte.SetDecGuideSpeed;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(speedNum)), 0, r, 1, 4);
             return r;
         }
@@ -134,7 +148,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                     break;
             }
             byte[] r = new byte[4];
-            r[0] = 4;
+            r[0] = (byte)CommandByte.PulseGuide;
             r[1] = dirByte;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(time)), 0, r, 2, 2);
             return r;
@@ -143,10 +157,24 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         public static byte[] CommandSyncToCoordinates(int targetRaMillis, int targetDecMillis)
         {
             byte[] r = new byte[9];
-            r[0] = 7;
+            r[0] = (byte)CommandByte.Sync;
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetRaMillis)), 0, r, 1, 4);
             Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetDecMillis)), 0, r, 5, 4);
             return r;
+        }
+
+        public static byte[] CommandSlewToCoordinates(int targetRaMillis, int targetDecMillis)
+        {
+            byte[] r = new byte[9];
+            r[0] = (byte)CommandByte.Slew;
+            Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetRaMillis)), 0, r, 1, 4);
+            Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(targetDecMillis)), 0, r, 5, 4);
+            return r;
+        }
+
+        public static byte[] CommandAbortSlew()
+        {
+            return new byte[] { (byte)CommandByte.AbortSlew };
         }
 
     }

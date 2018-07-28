@@ -14,6 +14,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         public int RightAscensionDirection { get; private set; }
         public int DeclinationMillis { get; private set; }
         public int DeclinationDirection { get; private set; }
+        public bool Slewing { get; private set; }
 
         private Broadcast()
         {
@@ -34,6 +35,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             //br.RightAscensionDirection = radir ? 1 : -1;
             br.DeclinationMillis = dectick;
             //br.DeclinationDirection = decdir ? 1 : -1;
+            br.Slewing = data[14] != 0;
             return br;
         }
     }
