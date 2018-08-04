@@ -76,6 +76,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         Sync = 7,
         Slew = 8,
         AbortSlew = 9,
+        SetSideOfPier = 10
     }
 
     class Commands
@@ -175,6 +176,14 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         public static byte[] CommandAbortSlew()
         {
             return new byte[] { (byte)CommandByte.AbortSlew };
+        }
+
+        public static byte[] CommandSetSideOfPier(bool sideOfPierIsWest)
+        {
+            return new byte[] { 
+                (byte)CommandByte.SetSideOfPier,
+                sideOfPierIsWest ? (byte)1 : (byte)0
+            };
         }
 
     }

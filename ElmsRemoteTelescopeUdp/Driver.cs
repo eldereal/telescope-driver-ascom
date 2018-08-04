@@ -43,6 +43,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace ASCOM.ElmsRemoteTelescopeUdp
 {
@@ -69,6 +70,10 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         /// The DeviceID is used by ASCOM applications to load the driver at runtime.
         /// </summary>
         internal static string driverID = "ASCOM.ElmsRemoteTelescopeUdp.Telescope";
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+
         // TODO Change the descriptive string for your driver then remove this line
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
@@ -114,6 +119,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         private int decSpeedInt;
         private int raGuideSpeedInt;
         private int decGuideSpeedInt;
+
+        FormControlPanel formControlPanel;
 
         Regex ipPortPattern = new Regex("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
@@ -180,6 +187,14 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 this.RightAscension = raMillis / (3600 * 1000.0);
                 this.Declination = decMillis * 360.0 / (double)DAY_MILLIS;
                 this.Slewing = pack.Slewing;
+                this.raSpeedInt = pack.RightAscensionRateMillis;
+                this.decSpeedInt = pack.DeclinationRateMillis;
+                this.tracking = pack.Tracking;
+                this.sideOfPierIsWest = pack.SideOfPierIsWest;
+                if (this.formControlPanel != null)
+                {
+                    this.formControlPanel.UpdateAsync();
+                }
                 autoDetectEvent.Set();
             }
             catch (ObjectDisposedException e)
@@ -372,11 +387,15 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 if (value)
                 {
                     connect();
+                    IntPtr handle = GetForegroundWindow();
+                    formControlPanel = new FormControlPanel(handle, this);
                     LogMessage("Connected Set", "Connecting to {0}:{1}", host, port);
                 }
                 else
                 {
                     disconnect();
+                    formControlPanel.Close();
+                    formControlPanel = null;
                     LogMessage("Connected Set", "Disconnecting from {0}:{1}", host, port);
                 }
             }
@@ -683,6 +702,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 tl.LogMessage("DeclinationRate Set", value.ToString());
                 decSpeedInt = (int)(value * 1000);
+                formControlPanel.UpdateAsync();
                 sendCommand(Commands.CommandSetDecSpeed(value));
             }
         }
@@ -804,6 +824,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 tl.LogMessage("RightAscensionRate Set", value.ToString());
                 raSpeedInt = (int)(value * 1000);
+                formControlPanel.UpdateAsync();
                 sendCommand(Commands.CommandSetRaSpeed(value));
             }
         }
@@ -814,17 +835,19 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             throw new ASCOM.MethodNotImplementedException("SetPark");
         }
 
+        bool sideOfPierIsWest;
+
         public PierSide SideOfPier
         {
             get
             {
-                tl.LogMessage("SideOfPier Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SideOfPier", false);
+                return sideOfPierIsWest ? PierSide.pierWest : PierSide.pierEast;
             }
             set
             {
-                tl.LogMessage("SideOfPier Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SideOfPier", true);
+                sideOfPierIsWest = value == PierSide.pierWest;
+                formControlPanel.UpdateAsync();
+                sendCommand(Commands.CommandSetSideOfPier(sideOfPierIsWest));
             }
         }
 
@@ -988,7 +1011,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             }
             set
             {
-                tracking = true;
+                tracking = value;
+                formControlPanel.UpdateAsync();
                 sendCommand(Commands.CommandSetTracking(value));
             }
         }
