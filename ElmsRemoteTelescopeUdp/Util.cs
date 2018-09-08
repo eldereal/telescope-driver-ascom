@@ -76,7 +76,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         Sync = 7,
         Slew = 8,
         AbortSlew = 9,
-        SetSideOfPier = 10
+        SetSideOfPier = 10,
+        SetTimeRatio = 101,
     }
 
     class Commands
@@ -184,6 +185,15 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 (byte)CommandByte.SetSideOfPier,
                 sideOfPierIsWest ? (byte)1 : (byte)0
             };
+        }
+
+        public static byte[] CommandSetTimeRatio(double ratio)
+        {
+            int ratioMillion = (int)(ratio * 1000000);
+            byte[] r = new byte[5];
+            r[0] = (byte)CommandByte.SetTimeRatio;
+            Array.Copy(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(ratioMillion)), 0, r, 1, 4);
+            return r;
         }
 
     }

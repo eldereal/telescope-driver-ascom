@@ -144,21 +144,18 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         }
 
         void connect()
-        {
-            if (autoDetect)
-            {
-                UdpClient autoDetectClient = new UdpClient();
-                int port = Helpers.FindNextAvailableUDPPort(9334);
-                autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
-                autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
-                if (!autoDetectEvent.WaitOne(10000))
-                {   
-                    throw new ASCOM.DriverException("Auto-find telescope timeout");
-                }
-            }
+        {   
+            UdpClient autoDetectClient = new UdpClient();
+            int port = Helpers.FindNextAvailableUDPPort(9334);
+            autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
+            autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
+            //if (!autoDetectEvent.WaitOne(10000))
+            //{   
+            //    throw new ASCOM.DriverException("Auto-find telescope timeout");
+            //}
             client = new UdpClient(Helpers.FindNextAvailableUDPPort(19333));
             client.BeginReceive(new AsyncCallback(PackReceived), client);
-            sendCommandAndWaitAck(Commands.CommandPing());
+            sendCommand(Commands.CommandPing());
         }
 
         int SIDEREAL_DAY_MILLIS = 86164092;
@@ -283,6 +280,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 client.Close();
             }
+        }
+
+        public void SetSpeedRatio(double ratio)
+        {
+            sendCommand(Commands.CommandSetTimeRatio(ratio));
         }
 
         //

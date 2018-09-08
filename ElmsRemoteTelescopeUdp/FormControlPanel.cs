@@ -5,28 +5,61 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Windows;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using ASCOM.DeviceInterface;
 
 namespace ASCOM.ElmsRemoteTelescopeUdp
 {
-    public struct Rect
-    {
-        public int Left { get; set; }
-        public int Top { get; set; }
-        public int Right { get; set; }
-        public int Bottom { get; set; }
-    }
-
     public partial class FormControlPanel : Form
     {
+        [DllImport(@"dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, uint dwAttribute, out Rect pvAttribute, int cbAttribute);
+
+        [Serializable, StructLayout(LayoutKind.Sequential)]
+        private struct Rect
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [Flags]
+        public enum DwmWindowAttribute : uint
+        {
+            DWMWA_NCRENDERING_ENABLED = 1,
+            DWMWA_NCRENDERING_POLICY,
+            DWMWA_TRANSITIONS_FORCEDISABLED,
+            DWMWA_ALLOW_NCPAINT,
+            DWMWA_CAPTION_BUTTON_BOUNDS,
+            DWMWA_NONCLIENT_RTL_LAYOUT,
+            DWMWA_FORCE_ICONIC_REPRESENTATION,
+            DWMWA_FLIP3D_POLICY,
+            DWMWA_EXTENDED_FRAME_BOUNDS,
+            DWMWA_HAS_ICONIC_BITMAP,
+            DWMWA_DISALLOW_PEEK,
+            DWMWA_EXCLUDED_FROM_PEEK,
+            DWMWA_CLOAK,
+            DWMWA_CLOAKED,
+            DWMWA_FREEZE_REPRESENTATION,
+            DWMWA_LAST
+        }
+
+        private static Rect getFrameBounds(IntPtr handle)
+        {
+            Rect rect;
+            var result = DwmGetWindowAttribute(handle, (uint) DwmWindowAttribute.DWMWA_EXTENDED_FRAME_BOUNDS,
+                out rect, Marshal.SizeOf(typeof(Rect)));
+            return rect;
+        }
 
         [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
+        private static extern bool GetWindowRect(IntPtr hwnd, ref Rect rectangle);
         
         [DllImport("user32.dll")]
-        static extern bool IsWindowVisible(IntPtr hWnd);
+        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         public IntPtr OwnerWindowHandle { get; set; }
         public Telescope Driver { get; set; }
@@ -64,10 +97,9 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             };
             OwnerWindowHandle = owner;
             Driver = driver;
-            Rect rect = new Rect();
-            GetWindowRect(OwnerWindowHandle, ref rect);
+            Rect rect = getFrameBounds(OwnerWindowHandle);
+            this.Left = rect.Right - (int)SystemParameters.FixedFrameVerticalBorderWidth;
             this.Top = rect.Top;
-            this.Left = rect.Right;
             this.Height = rect.Bottom - rect.Top;
             IWin32Window window = Control.FromHandle(OwnerWindowHandle);
             this.Show(window);
@@ -86,10 +118,9 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
         private void timerPosition_Tick(object sender, EventArgs e)
         {
-            Rect rect = new Rect();
-            GetWindowRect(OwnerWindowHandle, ref rect);
+            Rect rect = getFrameBounds(OwnerWindowHandle);
+            this.Left = rect.Right - (int)SystemParameters.FixedFrameVerticalBorderWidth;
             this.Top = rect.Top;
-            this.Left = rect.Right;
             this.Height = rect.Bottom - rect.Top;
             this.Visible = IsWindowVisible(OwnerWindowHandle);
         }
@@ -222,6 +253,16 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         private void decTrack_Scroll(object sender, ScrollEventArgs e)
         {
             timerDecTrack.Enabled = true;
+        }
+
+        private void buttonSetSpeedRatio_Click(object sender, EventArgs e)
+        {
+            double ratio;
+            if (!double.TryParse(txtSpeedRatio.Text, out ratio))
+            {
+                System.Windows.Forms.MessageBox.Show("请输入一个数字");
+            }
+            Driver.SetSpeedRatio(ratio);
         }
     }
 }

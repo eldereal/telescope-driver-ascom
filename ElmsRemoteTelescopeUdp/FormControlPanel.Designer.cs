@@ -32,17 +32,11 @@
             this.timerPosition = new System.Windows.Forms.Timer(this.components);
             this.raLabel = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.decTrack = new System.Windows.Forms.HScrollBar();
-            this.decLabel = new System.Windows.Forms.Label();
-            this.buttonRaZero = new System.Windows.Forms.Button();
-            this.buttonRa1 = new System.Windows.Forms.Button();
-            this.buttonRaN1 = new System.Windows.Forms.Button();
-            this.buttonRa2 = new System.Windows.Forms.Button();
-            this.buttonRa4 = new System.Windows.Forms.Button();
-            this.buttonRa8 = new System.Windows.Forms.Button();
-            this.buttonRaN2 = new System.Windows.Forms.Button();
-            this.buttonRaN4 = new System.Windows.Forms.Button();
-            this.buttonRaN8 = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.labelDecLess = new System.Windows.Forms.Label();
+            this.labelDecLarge = new System.Windows.Forms.Label();
+            this.btnResetAllSpeed = new System.Windows.Forms.Button();
             this.buttonDecN2 = new System.Windows.Forms.Button();
             this.buttonDecN4 = new System.Windows.Forms.Button();
             this.buttonDecN8 = new System.Windows.Forms.Button();
@@ -52,18 +46,26 @@
             this.buttonDecN1 = new System.Windows.Forms.Button();
             this.buttonDec1 = new System.Windows.Forms.Button();
             this.buttonDecZero = new System.Windows.Forms.Button();
-            this.btnResetAllSpeed = new System.Windows.Forms.Button();
-            this.raTrackingCheck = new System.Windows.Forms.CheckBox();
+            this.buttonRaN2 = new System.Windows.Forms.Button();
+            this.buttonRaN4 = new System.Windows.Forms.Button();
+            this.buttonRaN8 = new System.Windows.Forms.Button();
+            this.buttonRa8 = new System.Windows.Forms.Button();
+            this.buttonRa4 = new System.Windows.Forms.Button();
+            this.buttonRa2 = new System.Windows.Forms.Button();
+            this.buttonRaN1 = new System.Windows.Forms.Button();
+            this.buttonRa1 = new System.Windows.Forms.Button();
+            this.buttonRaZero = new System.Windows.Forms.Button();
+            this.decTrack = new System.Windows.Forms.HScrollBar();
+            this.decLabel = new System.Windows.Forms.Label();
             this.raTrack = new System.Windows.Forms.HScrollBar();
-            this.labelDecLarge = new System.Windows.Forms.Label();
-            this.labelDecLess = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
+            this.raTrackingCheck = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.radioSideOfPierEast = new System.Windows.Forms.RadioButton();
             this.radioSideOfPierWest = new System.Windows.Forms.RadioButton();
+            this.radioSideOfPierEast = new System.Windows.Forms.RadioButton();
             this.timerRaTrack = new System.Windows.Forms.Timer(this.components);
             this.timerDecTrack = new System.Windows.Forms.Timer(this.components);
+            this.buttonSetSpeedRatio = new System.Windows.Forms.Button();
+            this.txtSpeedRatio = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -117,124 +119,51 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Speed";
             // 
-            // decTrack
+            // label6
             // 
-            this.decTrack.LargeChange = 100;
-            this.decTrack.Location = new System.Drawing.Point(22, 115);
-            this.decTrack.Maximum = 3000;
-            this.decTrack.Name = "decTrack";
-            this.decTrack.Size = new System.Drawing.Size(194, 19);
-            this.decTrack.SmallChange = 10;
-            this.decTrack.TabIndex = 7;
-            this.decTrack.Scroll += new System.Windows.Forms.ScrollEventHandler(this.decTrack_Scroll);
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 43);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(11, 12);
+            this.label6.TabIndex = 30;
+            this.label6.Text = "E";
             // 
-            // decLabel
+            // label5
             // 
-            this.decLabel.AutoSize = true;
-            this.decLabel.Location = new System.Drawing.Point(6, 97);
-            this.decLabel.Name = "decLabel";
-            this.decLabel.Size = new System.Drawing.Size(107, 12);
-            this.decLabel.TabIndex = 6;
-            this.decLabel.Text = "Dec: 1 cycles/day";
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(219, 43);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(11, 12);
+            this.label5.TabIndex = 29;
+            this.label5.Text = "W";
             // 
-            // buttonRaZero
+            // labelDecLess
             // 
-            this.buttonRaZero.Location = new System.Drawing.Point(107, 61);
-            this.buttonRaZero.Name = "buttonRaZero";
-            this.buttonRaZero.Size = new System.Drawing.Size(26, 23);
-            this.buttonRaZero.TabIndex = 8;
-            this.buttonRaZero.Tag = "0";
-            this.buttonRaZero.Text = "0";
-            this.buttonRaZero.UseVisualStyleBackColor = true;
-            this.buttonRaZero.Click += new System.EventHandler(this.setRaSpeedEvent);
+            this.labelDecLess.AutoSize = true;
+            this.labelDecLess.Location = new System.Drawing.Point(8, 120);
+            this.labelDecLess.Name = "labelDecLess";
+            this.labelDecLess.Size = new System.Drawing.Size(11, 12);
+            this.labelDecLess.TabIndex = 28;
+            this.labelDecLess.Text = "S";
             // 
-            // buttonRa1
+            // labelDecLarge
             // 
-            this.buttonRa1.Location = new System.Drawing.Point(132, 61);
-            this.buttonRa1.Name = "buttonRa1";
-            this.buttonRa1.Size = new System.Drawing.Size(26, 23);
-            this.buttonRa1.TabIndex = 9;
-            this.buttonRa1.Tag = "1";
-            this.buttonRa1.Text = "1";
-            this.buttonRa1.UseVisualStyleBackColor = true;
-            this.buttonRa1.Click += new System.EventHandler(this.setRaSpeedEvent);
+            this.labelDecLarge.AutoSize = true;
+            this.labelDecLarge.Location = new System.Drawing.Point(219, 119);
+            this.labelDecLarge.Name = "labelDecLarge";
+            this.labelDecLarge.Size = new System.Drawing.Size(11, 12);
+            this.labelDecLarge.TabIndex = 27;
+            this.labelDecLarge.Text = "N";
             // 
-            // buttonRaN1
+            // btnResetAllSpeed
             // 
-            this.buttonRaN1.Location = new System.Drawing.Point(82, 61);
-            this.buttonRaN1.Name = "buttonRaN1";
-            this.buttonRaN1.Size = new System.Drawing.Size(26, 23);
-            this.buttonRaN1.TabIndex = 10;
-            this.buttonRaN1.Tag = "-1";
-            this.buttonRaN1.Text = "-1";
-            this.buttonRaN1.UseVisualStyleBackColor = true;
-            this.buttonRaN1.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRa2
-            // 
-            this.buttonRa2.Location = new System.Drawing.Point(157, 61);
-            this.buttonRa2.Name = "buttonRa2";
-            this.buttonRa2.Size = new System.Drawing.Size(26, 23);
-            this.buttonRa2.TabIndex = 11;
-            this.buttonRa2.Tag = "2";
-            this.buttonRa2.Text = "2";
-            this.buttonRa2.UseVisualStyleBackColor = true;
-            this.buttonRa2.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRa4
-            // 
-            this.buttonRa4.Location = new System.Drawing.Point(182, 61);
-            this.buttonRa4.Name = "buttonRa4";
-            this.buttonRa4.Size = new System.Drawing.Size(26, 23);
-            this.buttonRa4.TabIndex = 12;
-            this.buttonRa4.Tag = "4";
-            this.buttonRa4.Text = "4";
-            this.buttonRa4.UseVisualStyleBackColor = true;
-            this.buttonRa4.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRa8
-            // 
-            this.buttonRa8.Location = new System.Drawing.Point(207, 61);
-            this.buttonRa8.Name = "buttonRa8";
-            this.buttonRa8.Size = new System.Drawing.Size(26, 23);
-            this.buttonRa8.TabIndex = 13;
-            this.buttonRa8.Tag = "8";
-            this.buttonRa8.Text = "8";
-            this.buttonRa8.UseVisualStyleBackColor = true;
-            this.buttonRa8.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRaN2
-            // 
-            this.buttonRaN2.Location = new System.Drawing.Point(57, 61);
-            this.buttonRaN2.Name = "buttonRaN2";
-            this.buttonRaN2.Size = new System.Drawing.Size(26, 23);
-            this.buttonRaN2.TabIndex = 16;
-            this.buttonRaN2.Tag = "-2";
-            this.buttonRaN2.Text = "-2";
-            this.buttonRaN2.UseVisualStyleBackColor = true;
-            this.buttonRaN2.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRaN4
-            // 
-            this.buttonRaN4.Location = new System.Drawing.Point(32, 61);
-            this.buttonRaN4.Name = "buttonRaN4";
-            this.buttonRaN4.Size = new System.Drawing.Size(26, 23);
-            this.buttonRaN4.TabIndex = 15;
-            this.buttonRaN4.Tag = "-4";
-            this.buttonRaN4.Text = "-4";
-            this.buttonRaN4.UseVisualStyleBackColor = true;
-            this.buttonRaN4.Click += new System.EventHandler(this.setRaSpeedEvent);
-            // 
-            // buttonRaN8
-            // 
-            this.buttonRaN8.Location = new System.Drawing.Point(7, 61);
-            this.buttonRaN8.Name = "buttonRaN8";
-            this.buttonRaN8.Size = new System.Drawing.Size(26, 23);
-            this.buttonRaN8.TabIndex = 14;
-            this.buttonRaN8.Tag = "-8";
-            this.buttonRaN8.Text = "-8";
-            this.buttonRaN8.UseVisualStyleBackColor = true;
-            this.buttonRaN8.Click += new System.EventHandler(this.setRaSpeedEvent);
+            this.btnResetAllSpeed.Location = new System.Drawing.Point(8, 172);
+            this.btnResetAllSpeed.Name = "btnResetAllSpeed";
+            this.btnResetAllSpeed.Size = new System.Drawing.Size(225, 23);
+            this.btnResetAllSpeed.TabIndex = 26;
+            this.btnResetAllSpeed.Text = "Stop RA and Dec";
+            this.btnResetAllSpeed.UseVisualStyleBackColor = true;
+            this.btnResetAllSpeed.Click += new System.EventHandler(this.btnResetAllSpeed_Click);
             // 
             // buttonDecN2
             // 
@@ -335,25 +264,124 @@
             this.buttonDecZero.UseVisualStyleBackColor = true;
             this.buttonDecZero.Click += new System.EventHandler(this.setDecSpeedEvent);
             // 
-            // btnResetAllSpeed
+            // buttonRaN2
             // 
-            this.btnResetAllSpeed.Location = new System.Drawing.Point(8, 172);
-            this.btnResetAllSpeed.Name = "btnResetAllSpeed";
-            this.btnResetAllSpeed.Size = new System.Drawing.Size(225, 23);
-            this.btnResetAllSpeed.TabIndex = 26;
-            this.btnResetAllSpeed.Text = "Stop RA and Dec";
-            this.btnResetAllSpeed.UseVisualStyleBackColor = true;
-            this.btnResetAllSpeed.Click += new System.EventHandler(this.btnResetAllSpeed_Click);
+            this.buttonRaN2.Location = new System.Drawing.Point(57, 61);
+            this.buttonRaN2.Name = "buttonRaN2";
+            this.buttonRaN2.Size = new System.Drawing.Size(26, 23);
+            this.buttonRaN2.TabIndex = 16;
+            this.buttonRaN2.Tag = "-2";
+            this.buttonRaN2.Text = "-2";
+            this.buttonRaN2.UseVisualStyleBackColor = true;
+            this.buttonRaN2.Click += new System.EventHandler(this.setRaSpeedEvent);
             // 
-            // raTrackingCheck
+            // buttonRaN4
             // 
-            this.raTrackingCheck.AutoSize = true;
-            this.raTrackingCheck.Location = new System.Drawing.Point(6, 8);
-            this.raTrackingCheck.Name = "raTrackingCheck";
-            this.raTrackingCheck.Size = new System.Drawing.Size(126, 16);
-            this.raTrackingCheck.TabIndex = 0;
-            this.raTrackingCheck.Text = "Sidereal Tracking";
-            this.raTrackingCheck.UseVisualStyleBackColor = true;
+            this.buttonRaN4.Location = new System.Drawing.Point(32, 61);
+            this.buttonRaN4.Name = "buttonRaN4";
+            this.buttonRaN4.Size = new System.Drawing.Size(26, 23);
+            this.buttonRaN4.TabIndex = 15;
+            this.buttonRaN4.Tag = "-4";
+            this.buttonRaN4.Text = "-4";
+            this.buttonRaN4.UseVisualStyleBackColor = true;
+            this.buttonRaN4.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRaN8
+            // 
+            this.buttonRaN8.Location = new System.Drawing.Point(7, 61);
+            this.buttonRaN8.Name = "buttonRaN8";
+            this.buttonRaN8.Size = new System.Drawing.Size(26, 23);
+            this.buttonRaN8.TabIndex = 14;
+            this.buttonRaN8.Tag = "-8";
+            this.buttonRaN8.Text = "-8";
+            this.buttonRaN8.UseVisualStyleBackColor = true;
+            this.buttonRaN8.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRa8
+            // 
+            this.buttonRa8.Location = new System.Drawing.Point(207, 61);
+            this.buttonRa8.Name = "buttonRa8";
+            this.buttonRa8.Size = new System.Drawing.Size(26, 23);
+            this.buttonRa8.TabIndex = 13;
+            this.buttonRa8.Tag = "8";
+            this.buttonRa8.Text = "8";
+            this.buttonRa8.UseVisualStyleBackColor = true;
+            this.buttonRa8.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRa4
+            // 
+            this.buttonRa4.Location = new System.Drawing.Point(182, 61);
+            this.buttonRa4.Name = "buttonRa4";
+            this.buttonRa4.Size = new System.Drawing.Size(26, 23);
+            this.buttonRa4.TabIndex = 12;
+            this.buttonRa4.Tag = "4";
+            this.buttonRa4.Text = "4";
+            this.buttonRa4.UseVisualStyleBackColor = true;
+            this.buttonRa4.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRa2
+            // 
+            this.buttonRa2.Location = new System.Drawing.Point(157, 61);
+            this.buttonRa2.Name = "buttonRa2";
+            this.buttonRa2.Size = new System.Drawing.Size(26, 23);
+            this.buttonRa2.TabIndex = 11;
+            this.buttonRa2.Tag = "2";
+            this.buttonRa2.Text = "2";
+            this.buttonRa2.UseVisualStyleBackColor = true;
+            this.buttonRa2.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRaN1
+            // 
+            this.buttonRaN1.Location = new System.Drawing.Point(82, 61);
+            this.buttonRaN1.Name = "buttonRaN1";
+            this.buttonRaN1.Size = new System.Drawing.Size(26, 23);
+            this.buttonRaN1.TabIndex = 10;
+            this.buttonRaN1.Tag = "-1";
+            this.buttonRaN1.Text = "-1";
+            this.buttonRaN1.UseVisualStyleBackColor = true;
+            this.buttonRaN1.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRa1
+            // 
+            this.buttonRa1.Location = new System.Drawing.Point(132, 61);
+            this.buttonRa1.Name = "buttonRa1";
+            this.buttonRa1.Size = new System.Drawing.Size(26, 23);
+            this.buttonRa1.TabIndex = 9;
+            this.buttonRa1.Tag = "1";
+            this.buttonRa1.Text = "1";
+            this.buttonRa1.UseVisualStyleBackColor = true;
+            this.buttonRa1.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // buttonRaZero
+            // 
+            this.buttonRaZero.Location = new System.Drawing.Point(107, 61);
+            this.buttonRaZero.Name = "buttonRaZero";
+            this.buttonRaZero.Size = new System.Drawing.Size(26, 23);
+            this.buttonRaZero.TabIndex = 8;
+            this.buttonRaZero.Tag = "0";
+            this.buttonRaZero.Text = "0";
+            this.buttonRaZero.UseVisualStyleBackColor = true;
+            this.buttonRaZero.Click += new System.EventHandler(this.setRaSpeedEvent);
+            // 
+            // decTrack
+            // 
+            this.decTrack.LargeChange = 100;
+            this.decTrack.Location = new System.Drawing.Point(22, 115);
+            this.decTrack.Maximum = 3000;
+            this.decTrack.Name = "decTrack";
+            this.decTrack.Size = new System.Drawing.Size(194, 19);
+            this.decTrack.SmallChange = 10;
+            this.decTrack.TabIndex = 7;
+            this.decTrack.Scroll += new System.Windows.Forms.ScrollEventHandler(this.decTrack_Scroll);
+            // 
+            // decLabel
+            // 
+            this.decLabel.AutoSize = true;
+            this.decLabel.Location = new System.Drawing.Point(6, 97);
+            this.decLabel.Name = "decLabel";
+            this.decLabel.Size = new System.Drawing.Size(107, 12);
+            this.decLabel.TabIndex = 6;
+            this.decLabel.Text = "Dec: 1 cycles/day";
             // 
             // raTrack
             // 
@@ -366,41 +394,15 @@
             this.raTrack.TabIndex = 5;
             this.raTrack.Scroll += new System.Windows.Forms.ScrollEventHandler(this.raTrack_Scroll);
             // 
-            // labelDecLarge
+            // raTrackingCheck
             // 
-            this.labelDecLarge.AutoSize = true;
-            this.labelDecLarge.Location = new System.Drawing.Point(219, 119);
-            this.labelDecLarge.Name = "labelDecLarge";
-            this.labelDecLarge.Size = new System.Drawing.Size(11, 12);
-            this.labelDecLarge.TabIndex = 27;
-            this.labelDecLarge.Text = "N";
-            // 
-            // labelDecLess
-            // 
-            this.labelDecLess.AutoSize = true;
-            this.labelDecLess.Location = new System.Drawing.Point(8, 120);
-            this.labelDecLess.Name = "labelDecLess";
-            this.labelDecLess.Size = new System.Drawing.Size(11, 12);
-            this.labelDecLess.TabIndex = 28;
-            this.labelDecLess.Text = "S";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(219, 43);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(11, 12);
-            this.label5.TabIndex = 29;
-            this.label5.Text = "W";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 43);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(11, 12);
-            this.label6.TabIndex = 30;
-            this.label6.Text = "E";
+            this.raTrackingCheck.AutoSize = true;
+            this.raTrackingCheck.Location = new System.Drawing.Point(6, 8);
+            this.raTrackingCheck.Name = "raTrackingCheck";
+            this.raTrackingCheck.Size = new System.Drawing.Size(126, 16);
+            this.raTrackingCheck.TabIndex = 0;
+            this.raTrackingCheck.Text = "Sidereal Tracking";
+            this.raTrackingCheck.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
@@ -412,18 +414,6 @@
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Mechanical Declination";
-            // 
-            // radioSideOfPierEast
-            // 
-            this.radioSideOfPierEast.AutoSize = true;
-            this.radioSideOfPierEast.Location = new System.Drawing.Point(11, 18);
-            this.radioSideOfPierEast.Name = "radioSideOfPierEast";
-            this.radioSideOfPierEast.Size = new System.Drawing.Size(155, 16);
-            this.radioSideOfPierEast.TabIndex = 0;
-            this.radioSideOfPierEast.TabStop = true;
-            this.radioSideOfPierEast.Text = "In Range [-90°, 90°]";
-            this.radioSideOfPierEast.UseVisualStyleBackColor = true;
-            this.radioSideOfPierEast.Click += new System.EventHandler(this.setSideOfPierEvent);
             // 
             // radioSideOfPierWest
             // 
@@ -437,6 +427,18 @@
             this.radioSideOfPierWest.UseVisualStyleBackColor = true;
             this.radioSideOfPierWest.Click += new System.EventHandler(this.setSideOfPierEvent);
             // 
+            // radioSideOfPierEast
+            // 
+            this.radioSideOfPierEast.AutoSize = true;
+            this.radioSideOfPierEast.Location = new System.Drawing.Point(11, 18);
+            this.radioSideOfPierEast.Name = "radioSideOfPierEast";
+            this.radioSideOfPierEast.Size = new System.Drawing.Size(155, 16);
+            this.radioSideOfPierEast.TabIndex = 0;
+            this.radioSideOfPierEast.TabStop = true;
+            this.radioSideOfPierEast.Text = "In Range [-90°, 90°]";
+            this.radioSideOfPierEast.UseVisualStyleBackColor = true;
+            this.radioSideOfPierEast.Click += new System.EventHandler(this.setSideOfPierEvent);
+            // 
             // timerRaTrack
             // 
             this.timerRaTrack.Interval = 500;
@@ -447,12 +449,31 @@
             this.timerDecTrack.Interval = 500;
             this.timerDecTrack.Tick += new System.EventHandler(this.timerDecTrack_Tick);
             // 
+            // buttonSetSpeedRatio
+            // 
+            this.buttonSetSpeedRatio.Location = new System.Drawing.Point(6, 334);
+            this.buttonSetSpeedRatio.Name = "buttonSetSpeedRatio";
+            this.buttonSetSpeedRatio.Size = new System.Drawing.Size(225, 23);
+            this.buttonSetSpeedRatio.TabIndex = 31;
+            this.buttonSetSpeedRatio.Text = "Set Speed Ratio";
+            this.buttonSetSpeedRatio.UseVisualStyleBackColor = true;
+            this.buttonSetSpeedRatio.Click += new System.EventHandler(this.buttonSetSpeedRatio_Click);
+            // 
+            // txtSpeedRatio
+            // 
+            this.txtSpeedRatio.Location = new System.Drawing.Point(7, 307);
+            this.txtSpeedRatio.Name = "txtSpeedRatio";
+            this.txtSpeedRatio.Size = new System.Drawing.Size(224, 21);
+            this.txtSpeedRatio.TabIndex = 32;
+            // 
             // FormControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(238, 420);
             this.ControlBox = false;
+            this.Controls.Add(this.txtSpeedRatio);
+            this.Controls.Add(this.buttonSetSpeedRatio);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.raTrackingCheck);
             this.Controls.Add(this.groupBox1);
@@ -508,5 +529,7 @@
         private System.Windows.Forms.RadioButton radioSideOfPierEast;
         private System.Windows.Forms.Timer timerRaTrack;
         private System.Windows.Forms.Timer timerDecTrack;
+        private System.Windows.Forms.Button buttonSetSpeedRatio;
+        private System.Windows.Forms.TextBox txtSpeedRatio;
     }
 }
