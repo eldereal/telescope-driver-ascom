@@ -44,6 +44,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Me.Eldereal.ElmsRemoteDriverBase;
 
 namespace ASCOM.ElmsRemoteTelescopeUdp
 {
@@ -63,7 +64,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
     /// </summary>
     [Guid("382a5a13-41c6-4827-91ac-4ff9635bd184")]
     [ClassInterface(ClassInterfaceType.None)]
-    public class Telescope : ITelescopeV3
+    public class Telescope : BaseDriver, ITelescopeV3
     {
         /// <summary>
         /// ASCOM DeviceID (COM ProgID) for this driver.
@@ -80,20 +81,13 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         /// </summary>
         private static string driverDescription = "Elm's Remote Telescope (UDP)";
 
-        internal static string hostProfileName = "Host";
-        internal static string hostDefault = "";
-        internal static string portProfileName = "Port";
-        internal static string portDefault = "9333";
-        internal static string autoDetectProfileName = "AutoDetect";
-        internal static string autoDetectDefault = "true";
-
+        internal static string showToolsPanelProfileName = "ShowToolsPanel";
+        internal static string showToolsPanelDefault = "true";
+        
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
 
-        internal static string host;
-        internal static int port;
-        internal static bool autoDetect;
-
+        internal static bool showToolsPanel;
         /// <summary>
         /// Private variable to hold an ASCOM Utilities object
         /// </summary>
@@ -109,10 +103,6 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         /// </summary>
         internal static TraceLogger tl;
 
-        EventWaitHandle nextCommand;
-        EventWaitHandle autoDetectEvent;
-        UdpClient client;
-
         private bool tracking;
         private bool pulseGuiding;
         private int raSpeedInt;
@@ -121,8 +111,6 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         private int decGuideSpeedInt;
 
         FormControlPanel formControlPanel;
-
-        Regex ipPortPattern = new Regex("(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ElmsRemoteTelescopeUdp"/> class.
@@ -138,153 +126,55 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
             //TODO: Implement your additional construction here
-            nextCommand = new EventWaitHandle(false, EventResetMode.AutoReset);
-            autoDetectEvent = new EventWaitHandle(false, EventResetMode.AutoReset);
             tl.LogMessage("Telescope", "Completed initialisation");
         }
 
-        void connect()
-        {   
-            UdpClient autoDetectClient = new UdpClient();
-            int port = Helpers.FindNextAvailableUDPPort(9334);
-            autoDetectClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
-            autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
-            //if (!autoDetectEvent.WaitOne(10000))
-            //{   
-            //    throw new ASCOM.DriverException("Auto-find telescope timeout");
-            //}
-            client = new UdpClient(Helpers.FindNextAvailableUDPPort(19333));
-            client.BeginReceive(new AsyncCallback(PackReceived), client);
-            sendCommand(Commands.CommandPing());
-        }
-
-        int SIDEREAL_DAY_MILLIS = 86164092;
         int DAY_MILLIS = 86400000;
 
-        void AutoConnectReceived(IAsyncResult result)
+        protected override void AfterBroadcastPackReceived(Broadcast pack)
         {
-            UdpClient autoDetectClient = (UdpClient)result.AsyncState;
-            try
-            {                
-                IPEndPoint from = null;
-                byte[] res = autoDetectClient.EndReceive(result, ref from);
-                Broadcast pack = Broadcast.Parse(res);
-                host = pack.IP.ToString();
-                port = pack.Port;
-                int raMillis = pack.RightAscensionMillis;
-                while (raMillis < 0)
-                {
-                    raMillis += DAY_MILLIS;
-                }
-                while (raMillis >= DAY_MILLIS)
-                {
-                    raMillis -= DAY_MILLIS;
-                }
-                int decMillis = pack.DeclinationMillis;
-                this.RightAscension = raMillis / (3600 * 1000.0);
-                this.Declination = decMillis * 360.0 / (double)DAY_MILLIS;
-                this.Slewing = pack.Slewing;
-                this.raSpeedInt = pack.RightAscensionRateMillis;
-                this.decSpeedInt = pack.DeclinationRateMillis;
-                this.tracking = pack.Tracking;
-                this.sideOfPierIsWest = pack.SideOfPierIsWest;
-                if (this.formControlPanel != null)
-                {
-                    this.formControlPanel.UpdateAsync();
-                }
-                autoDetectEvent.Set();
-            }
-            catch (ObjectDisposedException e)
+            int raMillis = pack.RightAscensionMillis;
+            while (raMillis < 0)
             {
-                Console.Error.WriteLine(e);
+                raMillis += DAY_MILLIS;
             }
-            catch (SocketException e)
+            while (raMillis >= DAY_MILLIS)
             {
-                Console.Error.WriteLine(e);
+                raMillis -= DAY_MILLIS;
             }
-            finally
+            int decMillis = pack.DeclinationMillis;
+            this.RightAscension = raMillis / (3600 * 1000.0);
+            this.Declination = decMillis * 360.0 / (double)DAY_MILLIS;
+            this.Slewing = pack.Slewing;
+            this.raSpeedInt = pack.RightAscensionRateMillis;
+            this.decSpeedInt = pack.DeclinationRateMillis;
+            this.tracking = pack.Tracking;
+            this.sideOfPierIsWest = pack.SideOfPierIsWest;
+            if (this.formControlPanel != null)
             {
-                autoDetectClient.BeginReceive(new AsyncCallback(AutoConnectReceived), autoDetectClient);
+                this.formControlPanel.UpdateAsync();
             }
         }
 
-        void PackReceived(IAsyncResult result)
-        {
-            try
-            {
-                UdpClient client = (UdpClient)result.AsyncState;
-                IPEndPoint from = null;
-                byte[] res = client.EndReceive(result, ref from);
-                ParseAck(res);
-                client.BeginReceive(new AsyncCallback(PackReceived), client);
-            }
-            catch (ObjectDisposedException e)
-            {
-            }
-            catch (SocketException e)
-            {
-                tl.LogMessage("Telescope", "Socket exception:" + e.ErrorCode + " " + e.Message);
-            }
-        }
-
-        bool ParseAck(byte[] data)
-        {
-            if (data.Length != 18) return false;
-            tracking = data[0] != 0;
-            pulseGuiding = data[1] != 0;
-            raSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 2));
-            decSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 6));
-            raGuideSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 10));
-            decGuideSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 14));
-            double raSpeed = raSpeedInt / 1000.0;
-            double decSpeed = decSpeedInt / 1000.0;
-            double raGuideSpeed = raGuideSpeedInt / 1000.0;
-            double decGuideSpeed = decGuideSpeedInt / 1000.0;
-            tl.LogMessage("Ack", "tracking: " + tracking + ", pulseGuiding: " + pulseGuiding + ", raSpeed: " + raSpeed + ", raGuideSpeed: " + raGuideSpeed + ", decSpeed: " + decSpeed + ", decGuideSpeed: " + decGuideSpeed);
-            nextCommand.Set();
-            return true;
-        }
-
-        void sendCommand(byte[] command)
-        {
-            if (!IsConnected)
-            {
-                throw new ASCOM.DriverException("Send message before connected");
-            }
-            client.Send(command, command.Length, host, port);
-        }
-
-        void sendCommandAndWaitAck(byte[] command)
-        {
-            if (!IsConnected)
-            {
-                throw new ASCOM.DriverException("Send message before connected");
-            }
-            nextCommand.Reset();
-            client.Send(command, command.Length, host, port);
-            waitAck();
-        }
-
-        void waitAck()
-        {
-            if (!nextCommand.WaitOne(1000))
-            {
-                throw new ASCOM.DriverException("Connection timeout");
-            }
-        }
-
-
-        void disconnect()
-        {
-            if (client != null)
-            {
-                client.Close();
-            }
-        }
+        //bool ParseAck(byte[] data)
+        //{
+        //    if (data.Length != 18) return false;
+        //    tracking = data[0] != 0;
+        //    pulseGuiding = data[1] != 0;
+        //    raSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 2));
+        //    decSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 6));
+        //    raGuideSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 10));
+        //    decGuideSpeedInt = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(data, 14));
+        //    double raSpeed = raSpeedInt / 1000.0;
+        //    double decSpeed = decSpeedInt / 1000.0;
+        //    double raGuideSpeed = raGuideSpeedInt / 1000.0;
+        //    double decGuideSpeed = decGuideSpeedInt / 1000.0;
+        //    return true;
+        //}
 
         public void SetSpeedRatio(double ratio)
         {
-            sendCommand(Commands.CommandSetTimeRatio(ratio));
+            SendCommand(Commands.CommandSetTimeRatio(ratio));
         }
 
         //
@@ -361,9 +251,9 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             throw new ASCOM.MethodNotImplementedException("CommandString");
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
-            // Clean up the tracelogger and util objects
+            base.Dispose();
             tl.Enabled = false;
             tl.Dispose();
             tl = null;
@@ -388,17 +278,21 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
 
                 if (value)
                 {
-                    connect();
-                    IntPtr handle = GetForegroundWindow();
-                    formControlPanel = new FormControlPanel(handle, this);
-                    LogMessage("Connected Set", "Connecting to {0}:{1}", host, port);
+                    Connect();
+                    if (showToolsPanel)
+                    {
+                        IntPtr handle = GetForegroundWindow();
+                        formControlPanel = new FormControlPanel(handle, this);
+                    }
                 }
                 else
                 {
-                    disconnect();
-                    formControlPanel.Close();
-                    formControlPanel = null;
-                    LogMessage("Connected Set", "Disconnecting from {0}:{1}", host, port);
+                    Disconnect();
+                    if (formControlPanel != null)
+                    {
+                        formControlPanel.Close();
+                        formControlPanel = null;
+                    }
                 }
             }
         }
@@ -462,7 +356,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         public void AbortSlew()
         {
             tl.LogMessage("AbortSlew", "Slewing: " + Slewing);
-            sendCommand(Commands.CommandAbortSlew());
+            SendCommand(Commands.CommandAbortSlew());
         }
 
         public AlignmentModes AlignmentMode
@@ -704,8 +598,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 tl.LogMessage("DeclinationRate Set", value.ToString());
                 decSpeedInt = (int)(value * 1000);
-                formControlPanel.UpdateAsync();
-                sendCommand(Commands.CommandSetDecSpeed(value));
+                if (this.formControlPanel != null)
+                {
+                    formControlPanel.UpdateAsync();
+                }
+                SendCommand(Commands.CommandSetDecSpeed(value));
             }
         }
 
@@ -763,8 +660,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             set
             {
                 tl.LogMessage("GuideRateDeclination Set", value.ToString());
-                decGuideSpeedInt = (int)(value * 1000); 
-                sendCommand(Commands.CommandSetDecGuideSpeed(value));
+                decGuideSpeedInt = (int)(value * 1000);
+                SendCommand(Commands.CommandSetDecGuideSpeed(value));
             }
         }
 
@@ -777,7 +674,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             set
             {
                 raGuideSpeedInt = (int)(value * 1000);
-                sendCommand(Commands.CommandSetRaGuideSpeed(value));
+                SendCommand(Commands.CommandSetRaGuideSpeed(value));
             }
         }
 
@@ -808,7 +705,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
                 throw new ASCOM.InvalidValueException("PulseGuide Duration too long");
             }
             pulseGuiding = true;
-            sendCommand(Commands.CommandPulseGuidingSpeed(Direction, (short)Duration));
+            SendCommand(Commands.CommandPulseGuidingSpeed(Direction, (short)Duration));
         }
 
         public double RightAscension
@@ -826,8 +723,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 tl.LogMessage("RightAscensionRate Set", value.ToString());
                 raSpeedInt = (int)(value * 1000);
-                formControlPanel.UpdateAsync();
-                sendCommand(Commands.CommandSetRaSpeed(value));
+                if (this.formControlPanel != null)
+                {
+                    formControlPanel.UpdateAsync();
+                }
+                SendCommand(Commands.CommandSetRaSpeed(value));
             }
         }
 
@@ -848,8 +748,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             set
             {
                 sideOfPierIsWest = value == PierSide.pierWest;
-                formControlPanel.UpdateAsync();
-                sendCommand(Commands.CommandSetSideOfPier(sideOfPierIsWest));
+                if (this.formControlPanel != null)
+                {
+                    formControlPanel.UpdateAsync();
+                }
+                SendCommand(Commands.CommandSetSideOfPier(sideOfPierIsWest));
             }
         }
 
@@ -959,7 +862,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             tl.LogMessage("Slew", "RA: " + RightAscension + ", Dec: " + Declination);
             int raMillis = (int)(RightAscension * (3600.0 * 1000.0));
             int decMillis = (int)(Declination * (double)DAY_MILLIS / 360.0);
-            sendCommand(Commands.CommandSlewToCoordinates(raMillis, decMillis));
+            SendCommand(Commands.CommandSlewToCoordinates(raMillis, decMillis));
         }
 
         public void SlewToTarget()
@@ -985,7 +888,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             tl.LogMessage("Sync", "RA: " + RightAscension + ", Dec: " + Declination);
             int raMillis = (int)(RightAscension * (3600.0 * 1000.0));
             int decMillis = (int)(Declination * (double) DAY_MILLIS / 360.0);
-            sendCommand(Commands.CommandSyncToCoordinates(raMillis, decMillis));
+            SendCommand(Commands.CommandSyncToCoordinates(raMillis, decMillis));
         }
 
         public void SyncToTarget()
@@ -1014,8 +917,11 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             set
             {
                 tracking = value;
-                formControlPanel.UpdateAsync();
-                sendCommand(Commands.CommandSetTracking(value));
+                if (this.formControlPanel != null)
+                {
+                    formControlPanel.UpdateAsync();
+                }
+                SendCommand(Commands.CommandSetTracking(value));
             }
         }
 
@@ -1150,17 +1056,6 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         #endregion
 
         /// <summary>
-        /// Returns true if there is a valid connection to the driver hardware
-        /// </summary>
-        private bool IsConnected
-        {
-            get
-            {
-                return client != null;
-            }
-        }
-
-        /// <summary>
         /// Use this function to throw an exception if we aren't connected to the hardware
         /// </summary>
         /// <param name="message"></param>
@@ -1181,9 +1076,8 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 driverProfile.DeviceType = "Telescope";
                 tl.Enabled = Convert.ToBoolean(driverProfile.GetValue(driverID, traceStateProfileName, string.Empty, traceStateDefault));
-                host = driverProfile.GetValue(driverID, hostProfileName, string.Empty, hostDefault);
-                port = int.Parse(driverProfile.GetValue(driverID, portProfileName, string.Empty, portDefault));
-                autoDetect = !("false".Equals(driverProfile.GetValue(driverID, autoDetectProfileName, string.Empty, autoDetectDefault)));
+                string showToolsPanelStr = driverProfile.GetValue(driverID, showToolsPanelProfileName, string.Empty, showToolsPanelDefault);
+                showToolsPanel = !("false".Equals(showToolsPanelStr.ToLower()));
             }
         }
 
@@ -1196,9 +1090,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
             {
                 driverProfile.DeviceType = "Telescope";
                 driverProfile.WriteValue(driverID, traceStateProfileName, tl.Enabled.ToString());
-                driverProfile.WriteValue(driverID, hostProfileName, host);
-                driverProfile.WriteValue(driverID, portProfileName, port.ToString());
-                driverProfile.WriteValue(driverID, autoDetectProfileName, autoDetect.ToString());
+                driverProfile.WriteValue(driverID, showToolsPanelProfileName, showToolsPanel.ToString());
             }
         }
 
@@ -1208,7 +1100,7 @@ namespace ASCOM.ElmsRemoteTelescopeUdp
         /// <param name="identifier"></param>
         /// <param name="message"></param>
         /// <param name="args"></param>
-        internal static void LogMessage(string identifier, string message, params object[] args)
+        protected override void LogMessage(string identifier, string message, params object[] args)
         {
             var msg = string.Format(message, args);
             tl.LogMessage(identifier, msg);

@@ -79,8 +79,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Broadcast.cs" />
-    <Compile Include="DispatcherTimer.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="FormControlPanel.cs">
       <SubType>Form</SubType>
@@ -106,7 +104,6 @@
     <Compile Include="SetupDialogForm.designer.cs">
       <DependentUpon>SetupDialogForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FormControlPanel.resx">
@@ -153,6 +150,12 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ElmsRemoteDriverBase\ElmsRemoteDriverBase.csproj">
+      <Project>{7FAEDFD1-1832-40FC-96FA-3DA0BE76303D}</Project>
+      <Name>ElmsRemoteDriverBase</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
